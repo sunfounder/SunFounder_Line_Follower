@@ -1,17 +1,18 @@
-## SunFounder UltraSonic_Avoidance
-SunFounder UltraSonic_Avoidance
+## SunFounder Line Follower
+SunFounder Line Follower
 
 Quick Links:
 
- * [About SunFounder UltraSonic_Avoidance](#about_this_module)
+ * [About SunFounder Line Follower](#about_this_module)
  * [Update](#update)
  * [About SunFounder](#about_sunfounder)
  * [License](#license)
  * [Contact us](#contact_us)
 
 <a id="about_this_module"></a>
-### About SunFounder UltraSonic_Avoidance:
-This module is for SunFounder UltraSonic_Avoidance the PCB board, 25KHz Ultra sonic avoidance module
+### About SunFounder Line Follower:
+This code is for SunFounder Line Follower module
+
 
 <a id="update"></a>
 ### Update:
@@ -26,14 +27,14 @@ SunFounder is a technology company focused on Raspberry Pi and Arduino open sour
 ----------------------------------------------
 <a id="license"></a>
 ### License
-This is the code for SunFounder UltraSonic_Avoidance.
+This is the code for SunFounder Line Follower.
 This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied wa rranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-SunFounder UltraSonic_Avoidance comes with ABSOLUTELY NO WARRANTY; for details run ./show w. This is free software, and you are welcome to redistribute it under certain conditions; run ./show c for details.
+SunFounder Line Follower comes with ABSOLUTELY NO WARRANTY; for details run ./show w. This is free software, and you are welcome to redistribute it under certain conditions; run ./show c for details.
 
 SunFounder, Inc., hereby disclaims all copyright interest in the program 'SunFounder UltraSonic_Avoidance' (which makes passes at compilers).
 
