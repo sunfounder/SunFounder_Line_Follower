@@ -9,13 +9,17 @@ OUTPUTFILE  = lib$(NAME).so
 INSTALLDIR  = .
 
 .PHONY: all
-all: $(OUTPUTFILE)
+all: $(OUTPUTFILE) $(NAME)_Test
 
-# Build libgeorgeringo.so from george.o, ringo.o, 
-# and georgeringo.o; subst is the search-and-replace 
-# function demonstrated in Recipe 1.16
+# Build .so from .o, subst is the search-and-replace 
 $(OUTPUTFILE): $(subst .c,.o,$(SOURCES)) 
 	$(CXX) -shared -fPIC $(LDFLAGS) -o $@ $^
+
+test: $(NAME)_Test
+	LD_LIBRARY_PATH=. ./$(NAME)_Test
+
+$(NAME)_Test: lib$(NAME).so
+	$(CC) $(NAME)_Test.c -o $@ -L. -l$(NAME)
 
 .PHONY: install
 install:
@@ -25,6 +29,7 @@ install:
 .PHONY: clean 
 clean:
 	for file in $(CLEANEXTS); do rm -f *.$$file; done
+	rm $(NAME)_Test
 
 # Generate dependencies of .c files on .h files
 include $(subst .c,.d,$(SOURCES))

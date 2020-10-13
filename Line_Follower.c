@@ -3,21 +3,12 @@
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "Line_Follower.h" 
 
 /* Globals */
-#define NUM_REF 5
 int references[NUM_REF] = {300,300,300,300,300};
 int address = 0x11;
 int bus = 1;
-
-/* Function Prototypes */
-char * read_raw();
-int * read_analog(int trys);
-int * read_digital();
-float * get_average(int mount);
-int * found_line_in(float timeout);
-void wait_tile_status(int *status);
-void wait_tile_center();
 
 
 char * read_raw(){
