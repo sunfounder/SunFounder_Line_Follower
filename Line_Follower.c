@@ -78,6 +78,7 @@ int * read_digital(){
          digital_list[i] = -1;
       }
    }
+   return digital_list;
 }
 
 float * get_average(int mount){
