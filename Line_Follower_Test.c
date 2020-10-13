@@ -4,7 +4,7 @@
 #include "Line_Follower.h" 
 
 int main(){
-   printf("Line Follower Library Test Application Running\n");
+   printf("Line Follower C Test Application Running\n");
    int *dig_list; 
    int i;
    dig_list = read_digital();

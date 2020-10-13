@@ -18,7 +18,7 @@ $(OUTPUTFILE): $(subst .c,.o,$(SOURCES))
 test: $(NAME)_Test
 	LD_LIBRARY_PATH=. ./$(NAME)_Test
 
-$(NAME)_Test: lib$(NAME).so
+$(NAME)_Test: lib$(NAME).so $(NAME)_Test.c
 	$(CC) $(NAME)_Test.c -o $@ -L. -l$(NAME)
 
 .PHONY: install
