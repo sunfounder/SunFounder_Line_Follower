@@ -3,21 +3,63 @@
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>			//Needed for I2C port
+#include <fcntl.h>			//Needed for I2C port
+#include <sys/ioctl.h>			//Needed for I2C port
+#include <linux/i2c-dev.h>		//Needed for I2C port
 #include "Line_Follower.h" 
 
 /* Globals */
+#define RAW_LEN (2*NUM_REF)
 int references[NUM_REF] = {300,300,300,300,300};
-int address = 0x11;
+const int SLAVE_ADDRESS = 0x11;
 int bus = 1;
 
 
+
+int read_i2c(char *buffer,int length){
+   int file_i2c;
+   //----- OPEN THE I2C BUS -----
+   char *filename = (char*)"/dev/i2c-1";
+   if ((file_i2c = open(filename, O_RDWR)) < 0)
+   {
+	//ERROR HANDLING: you can check errno to see what went wrong
+	printf("Failed to open the i2c bus");
+	return 0;
+   }
+	
+   int addr = SLAVE_ADDRESS;          //<<<<<The I2C address of the slave
+   if (ioctl(file_i2c, I2C_SLAVE, addr) < 0)
+   {
+	printf("Failed to acquire bus access and/or talk to slave.\n");
+	//ERROR HANDLING; you can check errno to see what went wrong
+	return 0;
+   }
+	
+	
+   //----- READ BYTES -----
+   if (read(file_i2c, buffer, length) != length)		//read() returns the number of bytes actually read, if it doesn't match then an error occurred (e.g. no response from the device)
+   {
+	//ERROR HANDLING: i2c transaction failed
+	printf("Failed to read from the i2c bus.\n");
+   }
+   else
+   {
+	printf("Data read: %s\n", buffer);
+   }
+   close(file_i2c);
+}
+
 char * read_raw(){
-   int flag = 1;
-   static char raw_result[NUM_REF*2+1];
+   int flag = 0;
+   static char raw_result[RAW_LEN+1];
    int i;  
    for(i=0;i<NUM_REF;i++){
       /* Do an i2c read and if successful break from the loop */
-      break;
+      if(read_i2c(raw_result,RAW_LEN)){
+	 flag = 1;
+         break;
+      }
    }
    if(flag){ 
       return raw_result;
@@ -48,6 +90,9 @@ int * read_analog(int trys){
 	  }
 	  return analog_result;
       }
+      else{
+	 break;
+      }
    }
    printf("Line follower read error. Please check the wiring.\n");
    return NULL; 
@@ -56,17 +101,19 @@ int * read_analog(int trys){
 int * read_digital(){
    int * lt;
    int i;
-   static int digital_list[NUM_REF];
+   static int digital_list[NUM_REF] = {0};
    lt = read_analog(NUM_REF);
-   for(i=0;i<NUM_REF;i++){
-      if(lt[i] > references[i]){
-         digital_list[i] = 0;
-      }
-      else if(lt[i] < references[i]){
-         digital_list[i] = 1;
-      }
-      else{
-         digital_list[i] = -1;
+   if(lt != NULL){
+      for(i=0;i<NUM_REF;i++){
+         if(lt[i] > references[i]){
+            digital_list[i] = 0;
+         }
+         else if(lt[i] < references[i]){
+            digital_list[i] = 1;
+         }
+         else{
+            digital_list[i] = -1;
+         }
       }
    }
    return digital_list;
