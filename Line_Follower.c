@@ -21,6 +21,7 @@ int read_i2c(char *buffer,int length){
    int file_i2c;
    //----- OPEN THE I2C BUS -----
    char *filename = (char*)"/dev/i2c-1";
+   printf("Line_Follower.c :: read_i2c() called\n");
    if ((file_i2c = open(filename, O_RDWR)) < 0)
    {
 	//ERROR HANDLING: you can check errno to see what went wrong
@@ -45,7 +46,7 @@ int read_i2c(char *buffer,int length){
    }
    else
    {
-	printf("Data read: %s\n", buffer);
+	printf("Line_Follower.c :: read_i2c() :: Data read: %s\n", buffer);
    }
    close(file_i2c);
 }
@@ -54,6 +55,7 @@ char * read_raw(){
    int flag = 0;
    static char raw_result[RAW_LEN+1];
    int i;  
+   printf("Line_Follower.c :: read_raw() called\n");
    for(i=0;i<NUM_REF;i++){
       /* Do an i2c read and if successful break from the loop */
       if(read_i2c(raw_result,RAW_LEN)){
@@ -77,6 +79,7 @@ int * read_analog(int trys){
    if(trys <= 0){
       trys = NUM_REF;
    }
+   printf("Line_Follower.c :: read_analog() called\n");
    for(j=0;j<trys;j++){
       raw_result = read_raw();
       if(raw_result != NULL){
@@ -102,6 +105,7 @@ int * read_digital(){
    int * lt;
    int i;
    static int digital_list[NUM_REF] = {0};
+   printf("Line_Follower.c :: read_digital() called\n");
    lt = read_analog(NUM_REF);
    if(lt != NULL){
       for(i=0;i<NUM_REF;i++){
