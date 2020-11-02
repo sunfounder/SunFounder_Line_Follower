@@ -1,32 +1,53 @@
-# Line Follower Modification for Using a C Module 
+## SunFounder UltraSonic_Avoidance
+SunFounder UltraSonic_Avoidance
 
-## Overview:
-Line_Follower.c has the same functionality as the original Line_Follower.py
-Line_Follower.c is compiled as a shared library with a name libLine_Follower.so
-This library can then be called from a C or Python application.
-The two '*_Test' files show how this is done respectively in C and Python.
+Quick Links:
 
-## Main Files for the Library:
-Line_Follower.h <br/>
-Line_Follower.c <br/>
-Makefile
+ * [About SunFounder UltraSonic_Avoidance](#about_this_module)
+ * [Update](#update)
+ * [About SunFounder](#about_sunfounder)
+ * [License](#license)
+ * [Contact us](#contact_us)
 
-## Test Files:
-Line_Follower_Test.c <br/>
-Line_Follower_Test.py
+<a id="about_this_module"></a>
+### About SunFounder UltraSonic_Avoidance:
+This module is for SunFounder UltraSonic_Avoidance the PCB board, 25KHz Ultra sonic avoidance module
 
-## Building the project:
-make <br/>
-make all - Does the same
+<a id="update"></a>
+### Update:
+2016-09-26:
+ - New Release
 
-## Cleaning the project:
-make clean
+----------------------------------------------
+<a id="about_sunfounder"></a>
+### About SunFounder
+SunFounder is a technology company focused on Raspberry Pi and Arduino open source community development. Committed to the promotion of open source culture, we strives to bring the fun of electronics making to people all around the world and enable everyone to be a maker. Our products include learning kits, development boards, robots, sensor modules and development tools. In addition to high quality products, SunFounder also offers video tutorials to help you make your own project. If you have interest in open source or making something cool, welcome to join us!
 
-## Running tests:
-### Running the Line_Follower_Test C Application
-export LD_LIBRARY_PATH=. <br/>
-./Line_Follower <br/>
-The following command runs the C Application also:<br/>
-make test - Runs the Line_Follower_Test C executable <br/>
-### Running the Line_Follower_Test.py Python Application
-python3 Line_Follower_Test.py - Runs the Python Test
+----------------------------------------------
+<a id="license"></a>
+### License
+This is the code for SunFounder UltraSonic_Avoidance.
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied wa rranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+SunFounder UltraSonic_Avoidance comes with ABSOLUTELY NO WARRANTY; for details run ./show w. This is free software, and you are welcome to redistribute it under certain conditions; run ./show c for details.
+
+SunFounder, Inc., hereby disclaims all copyright interest in the program 'SunFounder UltraSonic_Avoidance' (which makes passes at compilers).
+
+Mike Huang, 21 August 2015
+
+Mike Huang, Chief Executive Officer
+
+Email: service@sunfounder.com, support@sunfounder.com
+
+----------------------------------------------
+<a id="contact_us"></a>
+### Contact us:
+website:
+	www.sunfounder.com
+
+E-mail:
+	service@sunfounder.com, support@sunfounder.com
