@@ -4,7 +4,9 @@ CLEANEXTS   = o so d
 # Specify the source files, the target files, 
 # and the install directory 
 NAME = Line_Follower
-SOURCES     = $(NAME).c
+HMACDIR=./hmac256
+SOURCES     = $(NAME).c $(HMACDIR)/hmac-sha256.c $(HMACDIR)/sha256.c
+CPPFLAGS+=-I$(HMACDIR)
 OUTPUTFILE  = lib$(NAME).so
 INSTALLDIR  = .
 
@@ -28,13 +30,13 @@ install:
 
 .PHONY: clean 
 clean:
-	for file in $(CLEANEXTS); do rm -f *.$$file; done
+	for file in $(CLEANEXTS); do rm -f *.$$file; rm -f $(HMACDIR)/*.$$file; done
 	rm $(NAME)_Test
 
 # Generate dependencies of .c files on .h files
 include $(subst .c,.d,$(SOURCES))
 
 %.d: %.c
-	$(CC) -M $(CPPFLAGS) $< > $@.$$$$; \
+	$(CC)  -M $(CPPFLAGS) $< > $@.$$$$; \
 	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
 rm -f $@.$$$$
