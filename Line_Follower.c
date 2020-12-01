@@ -156,11 +156,12 @@ int * found_line_in(float timeout){
    float time_during;
    clock_t time_start;
    clock_t time_now;
+   int i;
    time_start = clock();
    time_during = 0;
    while(time_during < timeout){   
        lt_status = read_digital();
-       for(int i=0;i<NUM_REF;i++){
+       for(i=0;i<NUM_REF;i++){
 	  if(lt_status[i] == 1){
              return lt_status;
 	  }
