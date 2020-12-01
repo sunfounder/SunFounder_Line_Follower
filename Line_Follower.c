@@ -8,6 +8,7 @@
 #include <sys/ioctl.h>			//Needed for I2C port
 #include <linux/i2c-dev.h>		//Needed for I2C port
 #include "Line_Follower.h" 
+#include "xmhfcrypto.h"
 
 /* Globals */
 #define RAW_LEN (2*NUM_REF)
@@ -15,11 +16,18 @@ int references[NUM_REF] = {300,300,300,300,300};
 const int SLAVE_ADDRESS = 0x11;
 int bus = 1;
 
+__attribute__((section(".data"))) unsigned char uhsign_key[]="super_secret_key_for_hmac";
+#define UHSIGN_KEY_SIZE (sizeof(uhsign_key))
+#define HMAC_DIGEST_SIZE 32
 
 
 int read_i2c(char *buffer,int length){
    int file_i2c;
    int bytes_read = 0;
+   int ret_length;
+   unsigned long digest_size = HMAC_DIGEST_SIZE;
+   unsigned char digest_result[HMAC_DIGEST_SIZE];
+
    //----- OPEN THE I2C BUS -----
    char *filename = (char*)"/dev/i2c-1";
    printf("Line_Follower.c :: read_i2c() called\n");
@@ -38,10 +46,20 @@ int read_i2c(char *buffer,int length){
 	return 0;
    }
 	
-	
+   ret_length = read(file_i2c, buffer, length); 	
    //----- READ BYTES -----
    if ((bytes_read=read(file_i2c, buffer, length)) != length)		//read() returns the number of bytes actually read, if it doesn't match then an error occurred (e.g. no response from the device)
+   if (ret_length != length)		//read() returns the number of bytes actually read, if it doesn't match then an error occurred (e.g. no response from the device)
    {
+        if(ret_length == length + HMAC_DIGEST_SIZE){
+           // Calculate the HMAC
+           if(hmac_sha256_memory(uhsign_key, (unsigned long) UHSIGN_KEY_SIZE, (unsigned char *) buffer, (unsigned long) length, digest_result, &digest_size)==CRYPT_OK) {
+             if(memcmp(buffer+length,digest_result,digest_size) != 0){
+                printf("HMAC digest does not match \n"); 
+             }
+        }
+
+        } 
 	//ERROR HANDLING: i2c transaction failed
 	printf("Failed to read from the i2c bus.\n");
    }
