@@ -19,6 +19,7 @@ int bus = 1;
 
 int read_i2c(char *buffer,int length){
    int file_i2c;
+   int bytes_read = 0;
    //----- OPEN THE I2C BUS -----
    char *filename = (char*)"/dev/i2c-1";
    printf("Line_Follower.c :: read_i2c() called\n");
@@ -39,7 +40,7 @@ int read_i2c(char *buffer,int length){
 	
 	
    //----- READ BYTES -----
-   if (read(file_i2c, buffer, length) != length)		//read() returns the number of bytes actually read, if it doesn't match then an error occurred (e.g. no response from the device)
+   if ((bytes_read=read(file_i2c, buffer, length)) != length)		//read() returns the number of bytes actually read, if it doesn't match then an error occurred (e.g. no response from the device)
    {
 	//ERROR HANDLING: i2c transaction failed
 	printf("Failed to read from the i2c bus.\n");
@@ -49,6 +50,7 @@ int read_i2c(char *buffer,int length){
 	printf("Line_Follower.c :: read_i2c() :: Data read: %s\n", buffer);
    }
    close(file_i2c);
+   return bytes_read;
 }
 
 char * read_raw(){
