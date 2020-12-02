@@ -47,19 +47,28 @@ int read_i2c(char *buffer,int length){
    ret_length = read(file_i2c, buffer, length); 	
    //----- READ BYTES -----
    //read() returns the number of bytes actually read, if it doesn't match then an error occurred (e.g. no response from the device)
-   if (ret_length != length)		//read() returns the number of bytes actually read, if it doesn't match then an error occurred (e.g. no response from the device)
-   {
+   if (ret_length != length){
         if(ret_length == length + HMAC_DIGEST_SIZE){
            // Calculate the HMAC
            if(hmac_sha256_memory(uhsign_key, (unsigned long) UHSIGN_KEY_SIZE, (unsigned char *) buffer, (unsigned long) length, digest_result, &digest_size)==CRYPT_OK) {
-             if(memcmp(buffer+length,digest_result,digest_size) != 0){
-                printf("HMAC digest does not match \n"); 
-             }
-        }
-
+               if(memcmp(buffer+length,digest_result,digest_size) != 0){
+                   printf("HMAC digest did not match with driver's digest \n"); 
+                   printf("Bytes returned: ");
+                   for(i=0;i<length;i++){
+                     printf("%d ",buffer[i]);
+                   }
+                   printf("\nDigest calculated: ");
+                   for(i=0;i<HMAC_DIGEST_SIZE;i++){
+                      printf("%d ",digest_result[i]);
+                   }
+                   printf("\n");
+               }
+           }
         } 
-	//ERROR HANDLING: i2c transaction failed
-	printf("Failed to read from the i2c bus.\n");
+        else{
+	   //ERROR HANDLING: i2c transaction failed
+	   printf("Read unexpected  number of bytes from the i2c bus.\n");
+        }
    }
    close(file_i2c);
    return ret_length;
