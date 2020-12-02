@@ -12,7 +12,7 @@
 
 /* Globals */
 #define RAW_LEN (2*NUM_REF)
-int references[NUM_REF] = {300,300,300,300,300};
+int references[NUM_REF] = {200,200,200,200,200};
 const int SLAVE_ADDRESS = 0x11;
 int bus = 1;
 
@@ -23,14 +23,13 @@ __attribute__((section(".data"))) unsigned char uhsign_key[]="super_secret_key_f
 
 int read_i2c(char *buffer,int length){
    int file_i2c;
-   int bytes_read = 0;
-   int ret_length;
+   int ret_length=0;
+   int i;
    unsigned long digest_size = HMAC_DIGEST_SIZE;
    unsigned char digest_result[HMAC_DIGEST_SIZE];
 
    //----- OPEN THE I2C BUS -----
    char *filename = (char*)"/dev/i2c-1";
-   printf("Line_Follower.c :: read_i2c() called\n");
    if ((file_i2c = open(filename, O_RDWR)) < 0)
    {
 	//ERROR HANDLING: you can check errno to see what went wrong
@@ -45,10 +44,9 @@ int read_i2c(char *buffer,int length){
 	//ERROR HANDLING; you can check errno to see what went wrong
 	return 0;
    }
-	
    ret_length = read(file_i2c, buffer, length); 	
    //----- READ BYTES -----
-   if ((bytes_read=read(file_i2c, buffer, length)) != length)		//read() returns the number of bytes actually read, if it doesn't match then an error occurred (e.g. no response from the device)
+   //read() returns the number of bytes actually read, if it doesn't match then an error occurred (e.g. no response from the device)
    if (ret_length != length)		//read() returns the number of bytes actually read, if it doesn't match then an error occurred (e.g. no response from the device)
    {
         if(ret_length == length + HMAC_DIGEST_SIZE){
@@ -63,19 +61,14 @@ int read_i2c(char *buffer,int length){
 	//ERROR HANDLING: i2c transaction failed
 	printf("Failed to read from the i2c bus.\n");
    }
-   else
-   {
-	printf("Line_Follower.c :: read_i2c() :: Data read: %s\n", buffer);
-   }
    close(file_i2c);
-   return bytes_read;
+   return ret_length;
 }
 
 char * read_raw(){
    int flag = 0;
    static char raw_result[RAW_LEN+1];
    int i;  
-   printf("Line_Follower.c :: read_raw() called\n");
    for(i=0;i<NUM_REF;i++){
       /* Do an i2c read and if successful break from the loop */
       if(read_i2c(raw_result,RAW_LEN)){
@@ -94,12 +87,11 @@ char * read_raw(){
 int * read_analog(int trys){
    int i,j;
    char *raw_result;
-   char high_byte, low_byte;
+   int high_byte, low_byte;
    static int analog_result[NUM_REF];
    if(trys <= 0){
       trys = NUM_REF;
    }
-   printf("Line_Follower.c :: read_analog() called\n");
    for(j=0;j<trys;j++){
       raw_result = read_raw();
       if(raw_result != NULL){
@@ -125,7 +117,6 @@ int * read_digital(){
    int * lt;
    int i;
    static int digital_list[NUM_REF] = {0};
-   printf("Line_Follower.c :: read_digital() called\n");
    lt = read_analog(NUM_REF);
    if(lt != NULL){
       for(i=0;i<NUM_REF;i++){
@@ -139,6 +130,7 @@ int * read_digital(){
             digital_list[i] = -1;
          }
       }
+      printf("\n");
    }
    return digital_list;
 }

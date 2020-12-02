@@ -57,7 +57,7 @@ typedef unsigned long long      __uint64_t;
 /*
  * Standard type definitions.
  */
-typedef unsigned long   __clock_t;              /* clock()... */
+//typedef unsigned long   __clock_t;              /* clock()... */
 typedef unsigned int    __cpumask_t;
 typedef __int32_t       __critical_t;
 typedef long double     __double_t;
@@ -76,9 +76,9 @@ typedef __int64_t       __int_least64_t;
 typedef __int32_t       __ptrdiff_t;            /* ptr1 - ptr2 */
 typedef __int32_t       __register_t;
 typedef __int32_t       __segsz_t;              /* segment size (in pages) */
-typedef __uint32_t      __size_t;               /* sizeof() */
+//typedef __uint32_t      __size_t;               /* sizeof() */
 typedef __int32_t       __ssize_t;              /* byte count or error */
-typedef __int32_t       __time_t;               /* time()... */
+//typedef __int32_t       __time_t;               /* time()... */
 typedef __uint32_t      __uintfptr_t;
 typedef __uint64_t      __uintmax_t;
 typedef __uint32_t      __uintptr_t;
@@ -92,7 +92,7 @@ typedef __uint32_t      __uint_least32_t;
 typedef __uint64_t      __uint_least64_t;
 typedef __uint32_t      __u_register_t;
 
-typedef __uint32_t off_t;
+//typedef __uint32_t off_t;
 
 
 #if !defined(__cplusplus) || defined(__STDC_CONSTANT_MACROS)
