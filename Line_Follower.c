@@ -63,6 +63,9 @@ int read_i2c(char *buffer,int length){
                    }
                    printf("\n");
                }
+              // else{
+              //    printf("HMAC digest match\n");
+              // }
            }
         } 
         else{
@@ -141,6 +144,7 @@ int * read_digital(){
       }
       printf("\n");
    }
+   printf("read_digital() :: digital_list address : %p \n",digital_list);
    return digital_list;
 }
 
