@@ -3,6 +3,7 @@
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>			//Needed for I2C port
 #include <fcntl.h>			//Needed for I2C port
 #include <sys/ioctl.h>			//Needed for I2C port
@@ -125,10 +126,18 @@ int * read_analog(int trys){
    return NULL; 
 }
 
+static int *dynamic_list = NULL;
+
 int * read_digital(){
    int * lt;
    int i;
    static int digital_list[NUM_REF] = {0};
+   static int first_time = 0;
+   if(first_time == 0){
+      dynamic_list = (int *)malloc(NUM_REF*sizeof(int));
+      first_time++;
+      printf("read_digital() :: dynamic list %p \n",dynamic_list);
+   }
    lt = read_analog(NUM_REF);
    if(lt != NULL){
       for(i=0;i<NUM_REF;i++){
@@ -141,11 +150,13 @@ int * read_digital(){
          else{
             digital_list[i] = -1;
          }
+         dynamic_list[i] = digital_list[i];
       }
       printf("\n");
    }
    printf("read_digital() :: digital_list address : %p \n",digital_list);
-   return digital_list;
+   printf("read_digital() :: dynamic_list %p \n",dynamic_list);
+   return dynamic_list;
 }
 
 float * get_average(int mount){
