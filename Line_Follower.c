@@ -136,7 +136,7 @@ int * read_digital(){
    if(first_time == 0){
       dynamic_list = (int *)malloc(NUM_REF*sizeof(int));
       first_time++;
-      printf("read_digital() :: dynamic list %p \n",dynamic_list);
+      //printf("read_digital() :: dynamic list %p \n",dynamic_list);
    }
    lt = read_analog(NUM_REF);
    if(lt != NULL){
@@ -154,8 +154,11 @@ int * read_digital(){
       }
       printf("\n");
    }
-   printf("read_digital() :: digital_list address : %p \n",digital_list);
-   printf("read_digital() :: dynamic_list %p \n",dynamic_list);
+   //printf("read_digital() :: digital_list address : %p \n",digital_list);
+   //printf("read_digital() :: dynamic_list %p \n",dynamic_list);
+   // Sleep for 10ms so that an attack can succeed in overwriting bytes in buffer
+   // Car still runs fine with this delay
+   usleep(10000); 
    return dynamic_list;
 }
 

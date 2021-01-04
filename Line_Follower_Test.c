@@ -15,6 +15,9 @@ int main(){
       } 
       printf("\n");
       sleep(1);
+      for(i=0;i<NUM_REF;i++){
+         printf("%d ",dig_list[i]);
+      } 
    }
    return 0;
 }
