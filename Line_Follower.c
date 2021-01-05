@@ -126,18 +126,11 @@ int * read_analog(int trys){
    return NULL; 
 }
 
-static int *dynamic_list = NULL;
+__attribute__ ((section("i2c_section"))) static  int digital_list[NUM_REF]  = {0};
 
 int * read_digital(){
    int * lt;
    int i;
-   static int digital_list[NUM_REF] = {0};
-   static int first_time = 0;
-   if(first_time == 0){
-      dynamic_list = (int *)malloc(NUM_REF*sizeof(int));
-      first_time++;
-      //printf("read_digital() :: dynamic list %p \n",dynamic_list);
-   }
    lt = read_analog(NUM_REF);
    if(lt != NULL){
       for(i=0;i<NUM_REF;i++){
@@ -150,16 +143,14 @@ int * read_digital(){
          else{
             digital_list[i] = -1;
          }
-         dynamic_list[i] = digital_list[i];
       }
       printf("\n");
    }
-   //printf("read_digital() :: digital_list address : %p \n",digital_list);
-   printf("read_digital() :: dynamic_list %p \n",dynamic_list);
+   printf("read_digital() :: digital_list address : %p \n",digital_list);
    // Sleep for 10ms so that an attack can succeed in overwriting bytes in buffer
    // Car still runs fine with this delay
    usleep(10000); 
-   return dynamic_list;
+   return digital_list;
 }
 
 float * get_average(int mount){
