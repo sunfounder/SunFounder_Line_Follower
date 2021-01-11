@@ -3,6 +3,7 @@
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>			//Needed for I2C port
 #include <fcntl.h>			//Needed for I2C port
 #include <sys/ioctl.h>			//Needed for I2C port
@@ -63,6 +64,9 @@ int read_i2c(char *buffer,int length){
                    }
                    printf("\n");
                }
+              // else{
+              //    printf("HMAC digest match\n");
+              // }
            }
         } 
         else{
@@ -122,10 +126,11 @@ int * read_analog(int trys){
    return NULL; 
 }
 
+__attribute__ ((section("i2c_section"))) static  int digital_list[NUM_REF]  = {0};
+
 int * read_digital(){
    int * lt;
    int i;
-   static int digital_list[NUM_REF] = {0};
    lt = read_analog(NUM_REF);
    if(lt != NULL){
       for(i=0;i<NUM_REF;i++){
@@ -141,6 +146,10 @@ int * read_digital(){
       }
       printf("\n");
    }
+   printf("read_digital() :: digital_list address : %p \n",digital_list);
+   // Sleep for 10ms so that an attack can succeed in overwriting bytes in buffer
+   // Car still runs fine with this delay
+   usleep(10000); 
    return digital_list;
 }
 
