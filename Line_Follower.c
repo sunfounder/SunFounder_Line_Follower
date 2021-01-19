@@ -146,7 +146,7 @@ int * read_digital(){
       }
       printf("\n");
    }
-   printf("read_digital() :: digital_list address : %p \n",digital_list);
+   //printf("read_digital() :: digital_list address : %p \n",digital_list);
    // Sleep for 10ms so that an attack can succeed in overwriting bytes in buffer
    // Car still runs fine with this delay
    usleep(10000); 
