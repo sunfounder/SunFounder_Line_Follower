@@ -9,9 +9,6 @@ SOURCES     = $(NAME).c $(HMACDIR)/hmac-sha256.c $(HMACDIR)/sha256.c
 CPPFLAGS+=-I$(HMACDIR)
 OUTPUTFILE  = lib$(NAME).so
 INSTALLDIR  = .
-CC=arm-linux-gnueabihf-cc
-LD=arm-linux-gnueabihf-ld
-CXX=arm-linux-gnueabihf-g++
 
 .PHONY: all
 all: $(OUTPUTFILE) $(NAME)_Test
