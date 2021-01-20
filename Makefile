@@ -21,13 +21,12 @@ all: $(OUTPUTFILE) $(NAME)_Test
 
 # Build .so from .o, subst is the search-and-replace 
 $(OUTPUTFILE): $(subst .c,.o,$(SOURCES)) 
-	$(CXX) -shared -fPIC $(LDFLAGS) -o $@ $^
-
+	$(CXX) -shared -Wl,--whole-archive $(LDFLAGS) -luhcall -Wl,--no-whole-archive -fPIC -o $@ $^ 
 test: $(NAME)_Test
 	LD_LIBRARY_PATH=. ./$(NAME)_Test
 
 $(NAME)_Test: lib$(NAME).so $(NAME)_Test.c
-	$(CC) $(NAME)_Test.c -o $@ -L. $(LDFLAGS) -l$(NAME) -luhcall
+	$(CC) $(NAME)_Test.c -o $@ -L. $(LDFLAGS) -l$(NAME)
 
 .PHONY: install
 install:
