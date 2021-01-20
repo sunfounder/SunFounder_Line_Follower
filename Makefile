@@ -7,6 +7,7 @@ NAME = Line_Follower
 HMACDIR=./hmac256
 SOURCES     = $(NAME).c $(HMACDIR)/hmac-sha256.c $(HMACDIR)/sha256.c
 CPPFLAGS+=-I$(HMACDIR)
+CPPFLAGS+=-DUOBJCOLL
 OUTPUTFILE  = lib$(NAME).so
 INSTALLDIR  = .
 CC=arm-linux-gnueabihf-cc
