@@ -10,6 +10,7 @@
 #include <linux/i2c-dev.h>		//Needed for I2C port
 #include "Line_Follower.h" 
 #include "xmhfcrypto.h"
+#include "picar-s.h"
 
 /* Globals */
 #define RAW_LEN (2*NUM_REF)
@@ -17,7 +18,7 @@ int references[NUM_REF] = {200,200,200,200,200};
 const int SLAVE_ADDRESS = 0x11;
 int bus = 1;
 
-__attribute__((section(".data"))) unsigned char uhsign_key[]="super_secret_key_for_hmac";
+__attribute__((section("i2c_section"))) unsigned char uhsign_key[]="super_secret_key_for_hmac";
 #define UHSIGN_KEY_SIZE (sizeof(uhsign_key))
 #define HMAC_DIGEST_SIZE 32
 
@@ -50,6 +51,43 @@ int read_i2c(char *buffer,int length){
    //read() returns the number of bytes actually read, if it doesn't match then an error occurred (e.g. no response from the device)
    if (ret_length != length){
         if(ret_length == length + HMAC_DIGEST_SIZE){
+#ifdef UOBJCOLL	
+	   picar_s_param_t *ptr_upicar;
+	   int i;
+	    if (posix_memalign((void **)&ptr_upicar, 4096, sizeof(picar_s_param_t)) != 0){
+               printf("%s: error: line %u\n", __FUNCTION__);
+               exit(1);
+           }
+	   for(i=0;i<length;i++){
+		   ptr_upicar->in[i] = buffer[i];
+	   }
+	   ptr_upicar->len = length;
+	   // Perform an uobject call
+           if(!uhcall(UAPP_PICAR_S_FUNCTION_TEST, ptr_upicar, sizeof(picar_s_param_t)))
+              printf("hypercall FAILED\n");
+           else{
+              printf("hypercall SUCCESS\n");
+              for(i=0;i<HMAC_DIGEST_SIZE;i++){
+		   digest_result[i] = ptr_upicar->out[i];
+	      }
+	      digest_size = HMAC_DIGEST_SIZE;
+           }
+           free(ptr_upicar);	
+	   if(memcmp(buffer+length,digest_result,digest_size) != 0){
+                printf("HMAC digest did not match with driver's digest \n");
+                printf("Bytes returned: ");
+                for(i=0;i<length;i++){
+                   printf("%d ",buffer[i]);
+                }
+                printf("\nDigest calculated: ");
+                for(i=0;i<HMAC_DIGEST_SIZE;i++){
+                   printf("%d ",digest_result[i]);
+                }
+                printf("\n");
+           }
+
+            	   
+#else
            // Calculate the HMAC
            if(hmac_sha256_memory(uhsign_key, (unsigned long) UHSIGN_KEY_SIZE, (unsigned char *) buffer, (unsigned long) length, digest_result, &digest_size)==CRYPT_OK) {
                if(memcmp(buffer+length,digest_result,digest_size) != 0){
@@ -68,6 +106,7 @@ int read_i2c(char *buffer,int length){
               //    printf("HMAC digest match\n");
               // }
            }
+#endif	       
         } 
         else{
 	   //ERROR HANDLING: i2c transaction failed
@@ -78,9 +117,10 @@ int read_i2c(char *buffer,int length){
    return ret_length;
 }
 
+__attribute__((section("i2c_section_2"))) static char raw_result[RAW_LEN+1];
+
 char * read_raw(){
    int flag = 0;
-   static char raw_result[RAW_LEN+1];
    int i;  
    for(i=0;i<NUM_REF;i++){
       /* Do an i2c read and if successful break from the loop */
