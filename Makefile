@@ -7,7 +7,9 @@ NAME = Line_Follower
 HMACDIR=./hmac256
 SOURCES     = $(NAME).c $(HMACDIR)/hmac-sha256.c $(HMACDIR)/sha256.c
 CPPFLAGS+=-I$(HMACDIR)
+CPPFLAGS+=-I../uberxmhf/uxmhf-rpi3/uobjcoll/main/include
 CPPFLAGS+=-DUOBJCOLL
+LDFLAGS+=-L../uberxmhf/uxmhf-rpi3/rgapps/linux/libs/libuhcall
 OUTPUTFILE  = lib$(NAME).so
 INSTALLDIR  = .
 CC=arm-linux-gnueabihf-cc
@@ -25,7 +27,7 @@ test: $(NAME)_Test
 	LD_LIBRARY_PATH=. ./$(NAME)_Test
 
 $(NAME)_Test: lib$(NAME).so $(NAME)_Test.c
-	$(CC) $(NAME)_Test.c -o $@ -L. -l$(NAME)
+	$(CC) $(NAME)_Test.c -o $@ -L. $(LDFLAGS) -l$(NAME) -luhcall
 
 .PHONY: install
 install:
