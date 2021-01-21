@@ -22,6 +22,8 @@ __attribute__((section("i2c_section"))) unsigned char uhsign_key[]="super_secret
 #define UHSIGN_KEY_SIZE (sizeof(uhsign_key))
 #define HMAC_DIGEST_SIZE 32
 
+__attribute__((section(".palign_data")))  __attribute__((aligned(4096))) picar_s_param_t upicar;
+
 
 int read_i2c(char *buffer,int length){
    int file_i2c;
@@ -47,17 +49,18 @@ int read_i2c(char *buffer,int length){
 	return 0;
    }
    ret_length = read(file_i2c, buffer, length); 	
+   
    //----- READ BYTES -----
    //read() returns the number of bytes actually read, if it doesn't match then an error occurred (e.g. no response from the device)
    if (ret_length != length){
         if(ret_length == length + HMAC_DIGEST_SIZE){
 #ifdef UOBJCOLL	
-	   picar_s_param_t *ptr_upicar;
+	   picar_s_param_t *ptr_upicar = &upicar;
 	   int i;
-	    if (posix_memalign((void **)&ptr_upicar, 4096, sizeof(picar_s_param_t)) != 0){
-               printf("%s: error: line %u\n", __FUNCTION__);
-               exit(1);
-           }
+	   // if (posix_memalign((void **)&ptr_upicar, 4096, sizeof(picar_s_param_t)) != 0){
+           //    printf("%s: error: line %u\n", __FUNCTION__);
+           //    exit(1);
+           //}
 	   for(i=0;i<length;i++){
 		   ptr_upicar->in[i] = buffer[i];
 	   }
@@ -72,16 +75,16 @@ int read_i2c(char *buffer,int length){
 	      }
 	      digest_size = HMAC_DIGEST_SIZE;
            }
-           free(ptr_upicar);	
+           //free(ptr_upicar);	
 	   if(memcmp(buffer+length,digest_result,digest_size) != 0){
                 printf("HMAC digest did not match with driver's digest \n");
                 printf("Bytes returned: ");
-                for(i=0;i<length;i++){
-                   printf("%d ",buffer[i]);
+                for(i=0;i<length+HMAC_DIGEST_SIZE;i++){
+                   printf("%X ",buffer[i]);
                 }
                 printf("\nDigest calculated: ");
                 for(i=0;i<HMAC_DIGEST_SIZE;i++){
-                   printf("%d ",digest_result[i]);
+                   printf("%X ",digest_result[i]);
                 }
                 printf("\n");
            }

@@ -5,9 +5,10 @@ CLEANEXTS   = o so d
 # and the install directory 
 NAME = Line_Follower
 HMACDIR=./hmac256
-SOURCES     = $(NAME).c $(HMACDIR)/hmac-sha256.c $(HMACDIR)/sha256.c
+SOURCES     = $(NAME).c uhcall.c $(HMACDIR)/hmac-sha256.c $(HMACDIR)/sha256.c
 CPPFLAGS+=-I$(HMACDIR)
 CPPFLAGS+=-I../uberxmhf/uxmhf-rpi3/uobjcoll/main/include
+CPPFLAGS+=-I../uberxmhf/uxmhf-rpi3/rgapps/linux/libs/libuhcall/include
 CPPFLAGS+=-DUOBJCOLL
 LDFLAGS+=-L../uberxmhf/uxmhf-rpi3/rgapps/linux/libs/libuhcall
 OUTPUTFILE  = lib$(NAME).so
@@ -21,7 +22,7 @@ all: $(OUTPUTFILE) $(NAME)_Test
 
 # Build .so from .o, subst is the search-and-replace 
 $(OUTPUTFILE): $(subst .c,.o,$(SOURCES)) 
-	$(CXX) -shared -Wl,--whole-archive $(LDFLAGS) -luhcall -Wl,--no-whole-archive -fPIC -o $@ $^ 
+	$(CXX) -shared -fPIC -o $@ $^ 
 test: $(NAME)_Test
 	LD_LIBRARY_PATH=. ./$(NAME)_Test
 
