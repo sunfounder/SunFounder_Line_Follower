@@ -120,11 +120,12 @@ int read_i2c(char *buffer,int length){
    return ret_length;
 }
 
-__attribute__((section("i2c_section_2"))) static char raw_result[RAW_LEN+1];
+__attribute__((aligned(4096))) __attribute__((section("i2c_section_2"))) static char raw_result[4096];
 
 char * read_raw(){
    int flag = 0;
    int i;  
+   printf("read_raw() :: raw_result address : %p \n",raw_result);
    for(i=0;i<NUM_REF;i++){
       /* Do an i2c read and if successful break from the loop */
       if(read_i2c(raw_result,RAW_LEN)){
@@ -132,7 +133,10 @@ char * read_raw(){
          break;
       }
    }
-   if(flag){ 
+   // Sleep for 10ms so that an attack can succeed in overwriting bytes in buffer
+   // Car still runs fine with this delay
+   usleep(10000); 
+    if(flag){ 
       return raw_result;
    }
    else{
@@ -190,10 +194,7 @@ int * read_digital(){
       printf("\n");
    }
    //printf("read_digital() :: digital_list address : %p \n",digital_list);
-   // Sleep for 10ms so that an attack can succeed in overwriting bytes in buffer
-   // Car still runs fine with this delay
-   usleep(10000); 
-   return digital_list;
+  return digital_list;
 }
 
 float * get_average(int mount){
