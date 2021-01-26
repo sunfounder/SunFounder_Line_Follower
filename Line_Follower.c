@@ -23,7 +23,8 @@ __attribute__((section("i2c_section"))) unsigned char uhsign_key[]="super_secret
 #define HMAC_DIGEST_SIZE 32
 
 __attribute__((section(".palign_data")))  __attribute__((aligned(4096))) picar_s_param_t upicar;
-
+__attribute__((aligned(4096))) __attribute__((section("i2c_section_2"))) static char encrypted_buffer[4096];
+__attribute__((aligned(4096))) __attribute__((section("i2c_section_3"))) static char decrypted_buffer[4096];
 
 int read_i2c(char *buffer,int length){
    int file_i2c;
@@ -31,6 +32,8 @@ int read_i2c(char *buffer,int length){
    int i;
    unsigned long digest_size = HMAC_DIGEST_SIZE;
    unsigned char digest_result[HMAC_DIGEST_SIZE];
+
+   printf("read_i2c() :: decrypted_buffer address : %p \n",decrypted_buffer);
 
    //----- OPEN THE I2C BUS -----
    char *filename = (char*)"/dev/i2c-1";
@@ -49,6 +52,12 @@ int read_i2c(char *buffer,int length){
 	return 0;
    }
    ret_length = read(file_i2c, buffer, length); 	
+   if(ret_length == 0){
+      printf("i2c read() returned 0 bytes\n");
+      close(file_i2c);
+      return ret_length;
+   }
+
    
    //----- READ BYTES -----
    //read() returns the number of bytes actually read, if it doesn't match then an error occurred (e.g. no response from the device)
@@ -57,25 +66,17 @@ int read_i2c(char *buffer,int length){
 #ifdef UOBJCOLL	
 	   picar_s_param_t *ptr_upicar = &upicar;
 	   int i;
-	   // if (posix_memalign((void **)&ptr_upicar, 4096, sizeof(picar_s_param_t)) != 0){
-           //    printf("%s: error: line %u\n", __FUNCTION__);
-           //    exit(1);
-           //}
-	   for(i=0;i<length;i++){
-		   ptr_upicar->in[i] = buffer[i];
-	   }
+	   ptr_upicar->encrypted_buffer_va = (uint32_t) encrypted_buffer;
+	   ptr_upicar->decrypted_buffer_va = (uint32_t) decrypted_buffer;
 	   ptr_upicar->len = length;
 	   // Perform an uobject call
            if(!uhcall(UAPP_PICAR_S_FUNCTION_TEST, ptr_upicar, sizeof(picar_s_param_t)))
               printf("hypercall FAILED\n");
            else{
               printf("hypercall SUCCESS\n");
-              for(i=0;i<HMAC_DIGEST_SIZE;i++){
-		   digest_result[i] = ptr_upicar->out[i];
-	      }
+	      memcpy(digest_result,(unsigned char *)(ptr_upicar->decrypted_buffer_va),digest_size);
 	      digest_size = HMAC_DIGEST_SIZE;
            }
-           //free(ptr_upicar);	
 	   if(memcmp(buffer+length,digest_result,digest_size) != 0){
                 printf("HMAC digest did not match with driver's digest \n");
                 printf("Bytes returned: ");
@@ -120,15 +121,13 @@ int read_i2c(char *buffer,int length){
    return ret_length;
 }
 
-__attribute__((aligned(4096))) __attribute__((section("i2c_section_2"))) static char raw_result[4096];
 
 char * read_raw(){
    int flag = 0;
    int i;  
-   printf("read_raw() :: raw_result address : %p \n",raw_result);
    for(i=0;i<NUM_REF;i++){
       /* Do an i2c read and if successful break from the loop */
-      if(read_i2c(raw_result,RAW_LEN)){
+      if(read_i2c(encrypted_buffer,RAW_LEN)){
 	 flag = 1;
          break;
       }
@@ -137,7 +136,7 @@ char * read_raw(){
    // Car still runs fine with this delay
    usleep(10000); 
     if(flag){ 
-      return raw_result;
+      return encrypted_buffer;
    }
    else{
       return NULL;
@@ -273,5 +272,58 @@ void wait_tile_center(){
           break;
        }
    }
+}
+
+
+
+//return 0 on success, -1 on any error
+
+int lib_init(void){
+  picar_s_param_t *ptr_upicar = &upicar;
+  ptr_upicar->buffer_va = (uint32_t)&decrypted_buffer;
+
+  if(mlock(&encrypted_buffer, 4096) == -1){
+    printf("could not lock memory backing for encrypted buffer");
+    return -1;
+  }
+
+  if(mlock(ptr_upicar->buffer_va, 4096) == -1){
+    printf("could not lock memory backing for decrypted buffer");
+    return -1;
+  }
+
+  if(!uhcall(UAPP_PICAR_S_FUNCTION_PROT, ptr_upicar, sizeof(picar_s_param_t))){
+           printf("PROT hypercall FAILED\n");
+           return -1; //error
+   } else{
+           printf("PROT hypercall SUCCESS\n");
+           return 0; //success
+   }
+}
+
+
+
+
+//return 0 on success, -1 on any error
+int lib_exit(void){
+  picar_s_param_t *ptr_upicar = &upicar;
+  ptr_upicar->buffer_va = (uint32_t)&decrypted_buffer;
+     
+  if(!uhcall(UAPP_PICAR_S_FUNCTION_UNPROT, ptr_upicar, sizeof(picar_s_param_t))){
+           printf("UNPROT hypercall FAILED\n");
+           return -1; //error
+   }
+
+  if(munlock(ptr_upicar->buffer_va, 4096) == -1){
+    printf("could not unlock memory backing for buffer after return from UNPROT hypercall");
+    return -1;
+  }
+
+  if(munlock(&encrypted_buffer, 4096) == -1){
+    printf("could not unlock memory backing for encrypted buffer after return from UNPROT hypercall");
+    return -1;
+  }
+
+  return 0; //success
 }
 
