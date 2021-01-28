@@ -33,7 +33,8 @@ int read_i2c(char *buffer,int length){
    unsigned long digest_size = HMAC_DIGEST_SIZE;
    unsigned char digest_result[HMAC_DIGEST_SIZE];
 
-   printf("read_i2c() :: decrypted_buffer address : %p \n",decrypted_buffer);
+   //printf("read_i2c() :: encrypted_buffer address : %p \n",encrypted_buffer);
+   //printf("read_i2c() :: decrypted_buffer address : %p \n",decrypted_buffer);
 
    //----- OPEN THE I2C BUS -----
    char *filename = (char*)"/dev/i2c-1";
@@ -74,10 +75,11 @@ int read_i2c(char *buffer,int length){
               printf("hypercall FAILED\n");
            else{
               printf("hypercall SUCCESS\n");
-	      memcpy(digest_result,(unsigned char *)(ptr_upicar->decrypted_buffer_va),digest_size);
+	      memcpy(digest_result,decrypted_buffer,digest_size);
 	      digest_size = HMAC_DIGEST_SIZE;
            }
-	   if(memcmp(buffer+length,digest_result,digest_size) != 0){
+
+	   if(memcmp(buffer+length,decrypted_buffer,digest_size) != 0){
                 printf("HMAC digest did not match with driver's digest \n");
                 printf("Bytes returned: ");
                 for(i=0;i<length+HMAC_DIGEST_SIZE;i++){
@@ -89,8 +91,6 @@ int read_i2c(char *buffer,int length){
                 }
                 printf("\n");
            }
-
-            	   
 #else
            // Calculate the HMAC
            if(hmac_sha256_memory(uhsign_key, (unsigned long) UHSIGN_KEY_SIZE, (unsigned char *) buffer, (unsigned long) length, digest_result, &digest_size)==CRYPT_OK) {

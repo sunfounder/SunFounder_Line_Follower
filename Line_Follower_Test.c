@@ -7,7 +7,9 @@ int main(){
    printf("Line Follower C Test Application Running\n");
    int *dig_list; 
    int i;
-   for(;;){
+   int cnt = 0;
+   lib_init();
+   for(cnt=0;cnt<20;cnt++){
       dig_list = read_digital();
       printf("i2c buffer address %p \n",dig_list);
       for(i=0;i<NUM_REF;i++){
@@ -19,5 +21,6 @@ int main(){
          printf("%d ",dig_list[i]);
       } 
    }
+   lib_exit();
    return 0;
 }
