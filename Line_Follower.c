@@ -34,8 +34,7 @@ int read_i2c(char *buffer,int length){
    unsigned char digest_result[HMAC_DIGEST_SIZE];
 
    //printf("read_i2c() :: encrypted_buffer address : %p \n",encrypted_buffer);
-   //printf("read_i2c() :: decrypted_buffer address : %p \n",decrypted_buffer);
-
+   printf("read_i2c() :: decrypted_buffer address : %p \n",decrypted_buffer);
    //----- OPEN THE I2C BUS -----
    char *filename = (char*)"/dev/i2c-1";
    if ((file_i2c = open(filename, O_RDWR)) < 0)
@@ -74,7 +73,7 @@ int read_i2c(char *buffer,int length){
            if(!uhcall(UAPP_PICAR_S_FUNCTION_TEST, ptr_upicar, sizeof(picar_s_param_t)))
               printf("hypercall FAILED\n");
            else{
-              printf("hypercall SUCCESS\n");
+              //printf("hypercall SUCCESS\n");
 	      memcpy(digest_result,decrypted_buffer,digest_size);
 	      digest_size = HMAC_DIGEST_SIZE;
            }
