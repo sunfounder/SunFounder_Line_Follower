@@ -77,7 +77,10 @@ int read_i2c(char *buffer,int length){
 	      memcpy(digest_result,decrypted_buffer,digest_size);
 	      digest_size = HMAC_DIGEST_SIZE;
            }
-
+           
+           // Sleep for 10ms so that an attack can succeed in overwriting bytes in buffer
+           // Car still runs fine with this delay
+           usleep(10000); 
 	   if(memcmp(buffer+length,decrypted_buffer,digest_size) != 0){
                 printf("HMAC digest did not match with driver's digest \n");
                 printf("Bytes returned: ");
@@ -88,6 +91,9 @@ int read_i2c(char *buffer,int length){
                 for(i=0;i<HMAC_DIGEST_SIZE;i++){
                    printf("%X ",digest_result[i]);
                 }
+		for(i=0;i<length;i++){
+		    buffer[i] = 0;
+		}
                 printf("\n");
            }
 #else
@@ -103,6 +109,9 @@ int read_i2c(char *buffer,int length){
                    for(i=0;i<HMAC_DIGEST_SIZE;i++){
                       printf("%d ",digest_result[i]);
                    }
+		   for(i=0;i<length;i++){
+		      buffer[i] = 0;
+		   }
                    printf("\n");
                }
               // else{
@@ -131,9 +140,6 @@ char * read_raw(){
          break;
       }
    }
-   // Sleep for 10ms so that an attack can succeed in overwriting bytes in buffer
-   // Car still runs fine with this delay
-   usleep(10000); 
     if(flag){ 
       return encrypted_buffer;
    }
