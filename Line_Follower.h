@@ -10,5 +10,5 @@ float * get_average(int mount);
 int * found_line_in(float timeout);
 void wait_tile_status(int *status);
 void wait_tile_center();
-
-
+int lib_init(void);
+int lib_exit(void);
