@@ -1,0 +1,45 @@
+# Specify extensions of files to delete when cleaning
+CLEANEXTS   = o so d
+
+# Specify the source files, the target files, 
+# and the install directory 
+NAME = Line_Follower
+HMACDIR=./hmac256
+SOURCES     = $(NAME).c $(HMACDIR)/hmac-sha256.c $(HMACDIR)/sha256.c
+CPPFLAGS+=-I$(HMACDIR)
+OUTPUTFILE  = lib$(NAME).so
+INSTALLDIR  = .
+CC=arm-linux-gnueabihf-cc
+LD=arm-linux-gnueabihf-ld
+CXX=arm-linux-gnueabihf-g++
+
+.PHONY: all
+all: $(OUTPUTFILE) $(NAME)_Test
+
+# Build .so from .o, subst is the search-and-replace 
+$(OUTPUTFILE): $(subst .c,.o,$(SOURCES)) 
+	$(CXX) -shared -fPIC $(LDFLAGS) -o $@ $^
+
+test: $(NAME)_Test
+	LD_LIBRARY_PATH=. ./$(NAME)_Test
+
+$(NAME)_Test: lib$(NAME).so $(NAME)_Test.c
+	$(CC) $(NAME)_Test.c -o $@ -L. -l$(NAME)
+
+.PHONY: install
+install:
+	mkdir -p $(INSTALLDIR)
+	cp -p $(OUTPUTFILE) $(INSTALLDIR)
+
+.PHONY: clean 
+clean:
+	for file in $(CLEANEXTS); do rm -f *.$$file; rm -f $(HMACDIR)/*.$$file; done
+	rm $(NAME)_Test
+
+# Generate dependencies of .c files on .h files
+include $(subst .c,.d,$(SOURCES))
+
+%.d: %.c
+	$(CC)  -M $(CPPFLAGS) $< > $@.$$$$; \
+	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+rm -f $@.$$$$
