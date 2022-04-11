@@ -34,8 +34,9 @@ class Line_Follower(object):
 					low_byte = raw_result[i*2+1]
 					analog_result[i] = high_byte + low_byte
 					if analog_result[i] > 1024:
-						continue
-				return analog_result
+						break
+				else:
+					return analog_result
 		else:
 			raise IOError("Line follower read error. Please check the wiring.")
 
